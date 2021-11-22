@@ -11,6 +11,8 @@ chord_voices = [2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
 # AUDIO PARAMETERS
 sample_rate = 44100;
 
+fm_amplitude_part_1 = 5.0;
+
 # ------------------------------------------------------------------------------
 # DERIVED PARAMETERS
 n_voices = sum(chord_voices);
@@ -25,7 +27,7 @@ t3 = linspace(0, duration_part3, sample_rate*duration_part3);
 
 # FREQUENCY-MODULATION FUNCTIONS
 wobble_func = @(x, A, fm) A*sin(2.0*pi*fm*x);
-chirp_func = @(x, c) 2.0*pi * c * x.^2;
+chirp_func = @(x, c) pi * c * x.^2;
 
 # ------------------------------------------------------------------------------
 # SOUND GENERATION
@@ -33,15 +35,38 @@ chirp_func = @(x, c) 2.0*pi * c * x.^2;
 # PITCH
 # Part 1: 30 voices randomly placed between 200 and 400Hz with random 'wobbling'
 #         in frequency (the lower the voice, the lesser the wobbling).
-part1_out = cello_patch(220.0, ...
-                        @(x) wobble_func(x, 10.0, 0.5), t1);
+random_frequencies = 200.0 * rand(n_voices, 1) + 200;
+fm_frequencies = 0.5 * rand(n_voices, 1);
+fm_amplitudes = fm_amplitude_part_1 * (random_frequencies / 200.0);
+
+part1_out = [];
+for i = 1:n_voices
+  part1_out(:,i) = (1.0/n_voices) * cello_patch(random_frequencies(i), ...
+                     @(x) wobble_func(x, fm_amplitudes(i), fm_frequencies(i)), t1);
+end
+part1_out = tanh(sum(part1_out, 2));
 
 # Part 2: 30 voices sweeping linearly to their final positions. To achieve this
 #         the frequencies at the end of part 1 are calculated, then sorted in
 #         ascending order and every voice is given a target frequency to reach.
-part2_out = cello_patch(220.0, ...
-                        @(x) chirp_func(x, (440.0-220.0)/duration_part2), t2);
+final_frequencies = random_frequencies + fm_amplitudes .* ...
+                    sin(2.0*pi*fm_frequencies*duration_part1);
 
+# TODO: Decide on the ordering of final frequencies
+part2_out = [];
+for i=1:max(size(chord_voices))
+  for j=1:chord_voices(i)
+    start_frequency = final_frequencies(sum(chord_voices(1:i-1))+j);
+    target_frequency = chord_notes(i);
+    
+    part2_out(:,j) = (1.0/n_voices) * ...
+      cello_patch(start_frequency, ...
+        @(x) chirp_func(x, (target_frequency-start_frequency)/duration_part2), t2);
+  end
+end
+part2_out = tanh(sum(part2_out, 2));
+                        
+                        
 # Part 3: 
 part3_out = [];
 for i=1:max(size(chord_voices))
