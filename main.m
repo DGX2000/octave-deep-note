@@ -11,7 +11,8 @@ chord_voices = [2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3];
 # AUDIO PARAMETERS
 sample_rate = 44100;
 
-fm_amplitude_part_1 = 5.0;
+fm_amplitude_part_1 = 60.0;
+fm_frequencies_part_1 = 0.15;
 
 # DEBUGGING
 part1 = 1;
@@ -41,8 +42,8 @@ chirp_func = @(x, c) pi * c * x.^2;
 # Part 1: 30 voices randomly placed between 200 and 400Hz with random 'wobbling'
 #         in frequency (the lower the voice, the lesser the wobbling).
 tic;
-random_frequencies = 200.0 * rand(n_voices, 1) + 200;
-fm_frequencies = 0.5 * rand(n_voices, 1);
+random_frequencies = 200.0 * rand(n_voices, 1) + 200.0;
+fm_frequencies = fm_frequencies_part_1 * (random_frequencies / 200.0);
 fm_amplitudes = fm_amplitude_part_1 * (random_frequencies / 200.0);
 
 if part1 == 1
