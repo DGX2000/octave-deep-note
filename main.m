@@ -1,8 +1,8 @@
 # MUSIC PARAMETERS
 bpm = 60;
-bars_part1 = 2.5;
-bars_part2 = 1.5;
-bars_part3 = 4.0;
+bars_part1 = 1.5;
+bars_part2 = 2.75;
+bars_part3 = 3.75;
 
 # Notes: D1, D2, A2, D3, A3, D4, A4, D5, A5, D6, F#6
 chord_notes = [36.708, 73.416, 110, 146.832, 220, 293.665, 440, 587.33, 880, 1174.659, 1479.978];
@@ -15,8 +15,8 @@ fm_amplitude_part_1 = 60.0;
 fm_frequencies_part_1 = 0.15;
 
 # DEBUGGING
-part1 = 1;
-part2 = 0;
+part1 = 0;
+part2 = 1;
 part3 = 0;
 
 # ------------------------------------------------------------------------------
@@ -60,13 +60,18 @@ end
 timer = toc;
 fprintf("Part 1 took %d seconds.\n", timer);
 
-# Part 2: 30 voices sweeping linearly to their final positions. To achieve this
+# Part 2: 30 voices sweeping to their final positions. To achieve this
 #         the frequencies at the end of part 1 are calculated, then sorted in
 #         ascending order and every voice is given a target frequency to reach.
 tic;
 final_frequencies = random_frequencies + fm_amplitudes .* ...
                     sin(2.0*pi*fm_frequencies*duration_part1);
 
+# Analysis of original, slow linear sweep starts in first part
+# at about 6 seconds in, turns to fast linear sweep from 12s to 14s,
+# then from 14s to 17s there are ~4 "(1-exp)" steps towards target
+# each of those 3 steps covers about one third of the total frequency step
+                    
 # TODO: Decide on the ordering of final frequencies
 if part2 == 1
 part2_out = zeros(sample_rate*duration_part2, n_voices);
