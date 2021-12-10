@@ -6,5 +6,7 @@ function out = cello_patch(fc, fm_func, t)
                 0.023, 0.069, 0.001, 0.004, 0.003, 0.001]';
 
   voices = fm_sine(ratios * fc, @(x) ratios * fm_func(x), t);
-  out = tanh(voices' * amplitudes);
+  
+  total_amplitude = sum(amplitudes);
+  out = (voices' * amplitudes) ./ total_amplitude;
 end
