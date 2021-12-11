@@ -15,8 +15,8 @@ fm_amplitude_part_1 = 60.0;
 fm_frequencies_part_1 = 0.15;
 
 # DEBUGGING
-part1 = 0;
-part2 = 1;
+part1 = 1;
+part2 = 0;
 part3 = 0;
 
 # ------------------------------------------------------------------------------
@@ -117,6 +117,10 @@ fprintf("Part 3 took %d seconds.\n", timer);
 
 # VOLUME
 # Part 1: Apply a general volume curve over the mono audio.
+# TODO: Derive the amplitude and stretch parametrically
+if part1 == 1
+  part1_out = part1_out .*  (0.75 ./ (1 + 10.0*exp(-t1)))';
+end
 
 # Part 2: Clone the mono audio and add a back-and-forth between channels
 #         during the beginning with the 30 random voices. This back-and-forth
